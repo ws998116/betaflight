@@ -161,7 +161,7 @@ typedef struct bmp388_calib_param_s {
 
 STATIC_ASSERT(sizeof(bmp388_calib_param_t) == BMP388_TRIMMING_DATA_LENGTH, bmp388_calibration_structure_incorrectly_packed);
 
-static uint8_t bmp388_chip_id = 0;
+static uint8_t bmp388_chip_id[2];
 STATIC_UNIT_TESTED bmp388_calib_param_t bmp388_cal;
 // uncompensated pressure and temperature
 uint32_t bmp388_up = 0;
@@ -248,10 +248,9 @@ bool bmp388Detect(const bmp388Config_t *config, baroDev_t *baro)
         defaultAddressApplied = true;
     }
 
-    busReadRegisterBuffer(dev, BMP388_CHIP_ID_REG, &bmp388_chip_id, 1);
+    busReadRegisterBuffer(dev, BMP388_CHIP_ID_REG, bmp388_chip_id, 2);
 
-    if (bmp388_chip_id != BMP388_DEFAULT_CHIP_ID || bmp388_chip_id != BMP390_DEFAULT_CHIP_ID) {
-        bmp388BusDeinit(dev);
+    if (bmp388_chip_id[1] != BMP388_DEFAULT_CHIP_ID && bmp388_chip_id[1] != BMP390_DEFAULT_CHIP_ID) {
         if (defaultAddressApplied) {
             dev->busType_u.i2c.address = 0;
         }
